@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 type registerType = {
-  token: string | null;
-  username: string | null;
+  token: string | null | undefined;
+  username: string | null | undefined;
 };
 
 const initialState: registerType = {
@@ -17,10 +17,12 @@ export const registerSlice = createSlice({
   initialState,
   reducers: {
     getToken: (state: registerType, action: PayloadAction<registerType>) => {
+      storage.set("token", action.payload.token);
+      storage.set("username", action.payload.username);
       return {
         ...state,
-        token: String(storage.set("token", action.payload.token)),
-        username: String(storage.set("username", action.payload.username)),
+        token: storage.get("token"),
+        username: storage.get("username"),
       };
     },
     clearToken: (state: registerType) => {
@@ -35,4 +37,4 @@ export const registerSlice = createSlice({
 });
 
 export default registerSlice.reducer;
-export const { getToken } = registerSlice.actions;
+export const { getToken, clearToken } = registerSlice.actions;

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { storage } from "services";
 import type { MenuProps } from "antd";
 import { useState, CSSProperties } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
@@ -5,11 +7,15 @@ import { Flex, Layout, Menu, Button, theme, Avatar, Dropdown } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
+  BookOutlined,
+  StarOutlined,
   GroupOutlined,
   LogoutOutlined,
   SettingOutlined,
   ProductOutlined,
+  SnippetsOutlined,
   MenuFoldOutlined,
+  BarChartOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 
@@ -18,6 +24,13 @@ const Routes = () => {
   const navigate = useNavigate();
   const path = location.pathname.split("/");
   const [collapsed, setCollapsed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!storage.get("token")) {
+      navigate("/pages/login");
+      return;
+    }
+  }, []);
 
   const { Header, Sider, Content } = Layout;
 
@@ -70,14 +83,29 @@ const Routes = () => {
       icon: <HomeOutlined />,
     },
     {
-      key: "categories",
-      label: "Category",
+      key: "news",
+      label: "News",
       icon: <GroupOutlined />,
     },
     {
-      key: "products",
-      label: "Products",
-      icon: <ProductOutlined />,
+      key: "course",
+      label: "Course",
+      icon: <SnippetsOutlined />,
+    },
+    {
+      key: "event",
+      label: "Events",
+      icon: <BarChartOutlined />,
+    },
+    {
+      key: "teacher",
+      label: "Teacher",
+      icon: <StarOutlined />,
+    },
+    {
+      key: "library",
+      label: "Library",
+      icon: <BookOutlined />,
     },
   ];
 
@@ -115,6 +143,14 @@ const Routes = () => {
     else navigate(path);
   };
 
+  const renderUserName = () => {
+    if (storage.get("token")) {
+      return (storage.get("username") as string).split("").slice(0, 1);
+    } else {
+      return <UserOutlined />;
+    }
+  };
+
   return (
     <Layout>
       <Sider
@@ -143,7 +179,7 @@ const Routes = () => {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             />
             <Dropdown menu={{ items }} placement="bottomLeft">
-              <Avatar size={48} style={avatarStyle} icon={<UserOutlined />} />
+              <Avatar size={48} style={avatarStyle} icon={renderUserName()} />
             </Dropdown>
           </Flex>
         </Header>
