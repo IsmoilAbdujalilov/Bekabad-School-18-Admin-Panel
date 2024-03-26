@@ -39,6 +39,7 @@ const Routes = () => {
 
   const headerStyle: CSSProperties = {
     top: 0,
+    zIndex: 1,
     padding: 0,
     position: "sticky",
     paddingRight: "25px",
@@ -53,7 +54,7 @@ const Routes = () => {
 
   const contentStyle: CSSProperties = {
     padding: 24,
-    height: "100vh",
+    minHeight: "50vh",
     overflow: "initial",
     margin: "24px 16px",
     background: colorBgContainer,
