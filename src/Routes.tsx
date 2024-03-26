@@ -12,7 +12,6 @@ import {
   GroupOutlined,
   LogoutOutlined,
   SettingOutlined,
-  ProductOutlined,
   SnippetsOutlined,
   MenuFoldOutlined,
   BarChartOutlined,
