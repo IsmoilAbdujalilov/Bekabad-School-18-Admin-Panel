@@ -4,7 +4,7 @@ import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Modal, Table, Tooltip, Popconfirm, Form, Input, Spin } from "antd";
 
 const Categories = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [_, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const editStyle: CSSProperties = {
@@ -29,7 +29,6 @@ const Categories = () => {
 
   const onOk = () => {
     const params = { limit: "1", page: "4" };
-    console.log(searchParams.get("limit"));
     for (let param of Object.entries(params)) {
       setSearchParams((params) => {
         params.set(param[0], param[1]);

@@ -12,6 +12,7 @@ const Course = lazy(() => import("pages/Course"));
 const Teacher = lazy(() => import("pages/Teacher"));
 const Library = lazy(() => import("pages/Library"));
 const Products = lazy(() => import("pages/Products"));
+const EditNews = lazy(() => import("pages/EditNews"));
 const Settings = lazy(() => import("pages/Settings"));
 const Categories = lazy(() => import("pages/Categories"));
 
@@ -38,6 +39,7 @@ const routes = createBrowserRouter([
         element: <News />,
         path: "/pages/news",
       },
+
       {
         element: <Course />,
         path: "/pages/course",
@@ -68,6 +70,10 @@ const routes = createBrowserRouter([
   {
     path: "*",
     element: <Error />,
+  },
+  {
+    element: <EditNews />,
+    path: "/pages/news/:id",
   },
 ]);
 

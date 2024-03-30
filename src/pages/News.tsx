@@ -1,34 +1,35 @@
 import { useState } from "react";
 import { styles } from "services";
 import { get, truncate } from "lodash";
-import { useDelete, useGet, usePost } from "hooks";
-import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDelete, useGet, usePost, useUploadImage } from "hooks";
 import {
   EditOutlined,
   DeleteOutlined,
   CloudUploadOutlined,
 } from "@ant-design/icons";
 import {
-  Spin,
   Form,
   Flex,
   Modal,
   Table,
   Input,
   Switch,
+  Upload,
   Button,
+  Avatar,
   Tooltip,
   message,
   Popconfirm,
-  Upload,
-  Avatar,
 } from "antd";
 
 const News = () => {
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [_, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchCurrentParams, setSearchCurrentParams] = useSearchParams();
   const [inputImageFile, setInputImageFile] = useState<File | undefined>();
@@ -53,6 +54,7 @@ const News = () => {
       });
       setIsModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ["news"] });
+      form.resetFields();
     },
     onError: () => {
       messageApi.open({
@@ -79,6 +81,14 @@ const News = () => {
     path: "/news",
     queryKey: "news",
   });
+
+  const renderData = () => {
+    if (data?.data?.length > 0) {
+      return get(data, "data", []);
+    } else {
+      return [{}];
+    }
+  };
 
   const changePaginateCurrent = (params: {}) => {
     for (let param of Object.entries(params).reverse()) {
@@ -109,7 +119,6 @@ const News = () => {
 
   const onOk = () => {
     const params = { limit: "1", page: "4" };
-    console.log(searchParams.get("limit"));
     for (let param of Object.entries(params)) {
       setSearchParams((params) => {
         params.set(param[0], param[1]);
@@ -125,7 +134,11 @@ const News = () => {
       key: "image",
       title: "Avatar",
       render: ({ image }: { image: string }) => {
-        return <Avatar src={image} />;
+        return (
+          <>
+            <Avatar src={image} />
+          </>
+        );
       },
     },
     {
@@ -174,18 +187,22 @@ const News = () => {
       key: "switch",
       title: "Active",
       render: ({ isPublic }: { isPublic: boolean }) => {
-        return <Switch checked={isPublic} />;
+        return (
+          <>
+            <Switch checked={isPublic} />
+          </>
+        );
       },
     },
     {
       key: "edit",
       title: "Edit",
-      render: () => {
+      render: ({ _id }: { _id: string }) => {
         return (
           <Tooltip title="Edit">
             <EditOutlined
               style={styles.editStyle}
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => navigate(`/pages/news/${_id}`)}
             />
           </Tooltip>
         );
@@ -212,8 +229,32 @@ const News = () => {
     },
   ];
 
+  const sendUploadImage = useUploadImage({
+    path: "/upload/image",
+    queryKey: "upload-image",
+    onSuccess: ({ url }: any) => {
+      setInputImageFile(url);
+      messageApi.open({
+        type: "success",
+        content: "Success create upload image",
+      });
+    },
+    onError: () => {
+      messageApi.open({
+        type: "error",
+        content: "Error no upload image",
+      });
+    },
+  });
+
+  const uploadImage = (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    sendUploadImage.mutate(formData);
+  };
+
   return (
-    <Spin spinning={isLoading}>
+    <>
       {contextHolder}
       <Modal
         onOk={onOk}
@@ -224,6 +265,7 @@ const News = () => {
         cancelButtonProps={{ style: { display: "none" } }}
       >
         <Form
+          form={form}
           layout="vertical"
           onFinish={(values: newsTypes) => onFinish(values)}
         >
@@ -293,10 +335,8 @@ const News = () => {
             <Upload
               multiple={false}
               listType="picture-card"
-              action="http:localhost:5173"
-              beforeUpload={(file) => {
-                console.log(file);
-                setInputImageFile(file);
+              beforeUpload={(file: File) => {
+                uploadImage(file);
                 return false;
               }}
             >
@@ -321,15 +361,16 @@ const News = () => {
       </Flex>
       <Table
         columns={columns}
+        loading={isLoading}
         scroll={{ x: 1050 }}
-        dataSource={get(data, "data", [])}
+        dataSource={renderData()}
         onChange={(value) => changePaginateCurrent(value)}
         pagination={{
-          pageSize: 6,
+          pageSize: 5,
           current: Number(searchCurrentParams.get("current")) || 1,
         }}
       />
-    </Spin>
+    </>
   );
 };
 

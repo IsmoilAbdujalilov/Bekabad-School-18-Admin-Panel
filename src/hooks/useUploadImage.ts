@@ -2,23 +2,29 @@ import { get } from "lodash";
 import { api } from "services";
 import { useMutation } from "@tanstack/react-query";
 
-interface typeUseUpdate {
+interface typeUsePost {
   path: string;
   queryKey: string;
   onError: (data: unknown) => void;
   onSuccess: (data: unknown) => void;
 }
 
-const usePut = ({
+const usePost = ({
   path = "",
   onError = () => {},
   onSuccess = () => {},
-}: typeUseUpdate) => {
+}: typeUsePost) => {
   const response = useMutation({
-    mutationFn: (data:unknown) => {
-      return api.put(path, data).then((response) => {
-        return get(response, "data");
-      });
+    mutationFn: (data: unknown) => {
+      return api
+        .post(path, data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          return get(response, "data");
+        });
     },
     onError: (error) => onError(error),
     onSuccess: (successData) => onSuccess(successData),
@@ -26,4 +32,4 @@ const usePut = ({
   return response;
 };
 
-export default usePut;
+export default usePost;
