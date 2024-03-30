@@ -6,7 +6,6 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Flex, Layout, Menu, Button, theme, Avatar, Dropdown } from "antd";
 import {
   HomeOutlined,
-  UserOutlined,
   BookOutlined,
   StarOutlined,
   GroupOutlined,

@@ -1,5 +1,5 @@
 import axios from "axios";
-import storage from "./storage";
+// import storage from "./storage";
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_REACT_API_URL}`,
