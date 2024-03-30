@@ -1,48 +1,66 @@
-import { useGet } from "hooks";
+import { useState } from "react";
+import { styles } from "services";
 import { get, truncate } from "lodash";
-import { CSSProperties, useState } from "react";
+import { useDelete, useGet } from "hooks";
 import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
-  Modal,
-  Form,
   Spin,
+  Form,
+  Flex,
+  Modal,
   Table,
   Input,
   Switch,
+  Button,
   Tooltip,
+  message,
   Popconfirm,
 } from "antd";
 
 const News = () => {
+  const queryClient = useQueryClient();
+  const [messageApi, contextHolder] = message.useMessage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchCurrentParams, setSearchCurrentParams] = useSearchParams();
+
+  const onFinish = () => {};
+
+  const onCancel = () => setIsModalOpen(false);
 
   const { data, isLoading } = useGet({
     path: "/news",
     queryKey: "news",
   });
 
-  const editStyle: CSSProperties = {
-    color: "green",
-    cursor: "pointer",
-    fontSize: "18px",
-    marginLeft: "5px",
+  const changePaginateCurrent = (params: {}) => {
+    for (let param of Object.entries(params).reverse()) {
+      setSearchCurrentParams((params) => {
+        params.set(param[0], String(param[1]));
+        return params;
+      });
+    }
   };
 
-  const deleteStyle: CSSProperties = {
-    color: "red",
-    fontSize: "18px",
-    cursor: "pointer",
-    marginLeft: "5px",
-  };
-
-  const deleteAction = (id: number) => {
-    console.log(id);
-  };
-
-  const onFinish = () => {};
+  const { mutate } = useDelete({
+    path: "/news",
+    queryKey: "news",
+    onSuccess: () => {
+      messageApi.open({
+        type: "success",
+        content: "Success Delete Item",
+      });
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+    },
+    onError: () => {
+      messageApi.open({
+        type: "error",
+        content: "Error No Delete Item",
+      });
+    },
+  });
 
   const onOk = () => {
     const params = { limit: "1", page: "4" };
@@ -56,8 +74,6 @@ const News = () => {
 
     setIsModalOpen(false);
   };
-
-  const onCancel = () => setIsModalOpen(false);
 
   const columns = [
     {
@@ -116,7 +132,7 @@ const News = () => {
         return (
           <Tooltip title="Edit">
             <EditOutlined
-              style={editStyle}
+              style={styles.editStyle}
               onClick={() => setIsModalOpen(true)}
             />
           </Tooltip>
@@ -126,17 +142,17 @@ const News = () => {
     {
       key: "delete",
       title: "Delete",
-      render: ({ id }: { id: number }) => {
+      render: ({ _id }: { _id: string }) => {
         return (
           <Tooltip title="Delete">
             <Popconfirm
               okText="ok"
               title="Delete"
               cancelText="no"
-              onConfirm={() => deleteAction(id)}
+              onConfirm={() => mutate(_id)}
               placement="topLeft"
             >
-              <DeleteOutlined style={deleteStyle} />
+              <DeleteOutlined style={styles.deleteStyle} />
             </Popconfirm>
           </Tooltip>
         );
@@ -144,52 +160,37 @@ const News = () => {
     },
   ];
 
-  const changePaginateCurrent = (params: {}) => {
-    for (let param of Object.entries(params).reverse()) {
-      setSearchCurrentParams((params) => {
-        params.set(param[0], String(param[1]));
-        return params;
-      });
-    }
-  };
-
   return (
-    <>
-      <Spin spinning={isLoading}>
-        <Modal
-          onOk={onOk}
-          open={isModalOpen}
-          onCancel={onCancel}
-          title="Edit Category"
-        >
-          <Form
-            fields={[
-              {
-                value: "Fruit",
-                name: ["category"],
-              },
-            ]}
-            layout="vertical"
-            onFinish={onFinish}
-          >
-            <Form.Item label="Category" name="category">
-              <Input />
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        <Table
-          columns={columns}
-          scroll={{ x: 1050 }}
-          dataSource={get(data, "data", [])}
-          onChange={(value) => changePaginateCurrent(value)}
-          pagination={{
-            pageSize: 6,
-            current: Number(searchCurrentParams.get("current")) || 1,
-          }}
-        />
-      </Spin>
-    </>
+    <Spin spinning={isLoading}>
+      {contextHolder}
+      <Modal
+        onOk={onOk}
+        open={isModalOpen}
+        onCancel={onCancel}
+        title="Edit Category"
+      >
+        <Form layout="vertical" onFinish={onFinish}>
+          <Form.Item label="Category" name="category">
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Flex align="center" justify="flex-end">
+        <Button className="login-form__flex" type="primary">
+          Create
+        </Button>
+      </Flex>
+      <Table
+        columns={columns}
+        scroll={{ x: 1050 }}
+        dataSource={get(data, "data", [])}
+        onChange={(value) => changePaginateCurrent(value)}
+        pagination={{
+          pageSize: 6,
+          current: Number(searchCurrentParams.get("current")) || 1,
+        }}
+      />
+    </Spin>
   );
 };
 

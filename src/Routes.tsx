@@ -21,7 +21,7 @@ import {
 const Routes = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const path = location.pathname.split("/");
+  const path = location?.pathname?.split("/");
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
@@ -143,13 +143,13 @@ const Routes = () => {
     else navigate(path);
   };
 
-  const renderUserName = () => {
-    if (storage.get("token")) {
-      return (storage.get("username") as string).split("").slice(0, 1);
-    } else {
-      return <UserOutlined />;
-    }
-  };
+  // const renderUserName = () => {
+  //   if (storage.get("token")) {
+  //     return (storage.get("username") as string).split("").slice(0, 1);
+  //   } else {
+  //     return <UserOutlined />;
+  //   }
+  // };
 
   return (
     <Layout>
@@ -179,7 +179,7 @@ const Routes = () => {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             />
             <Dropdown menu={{ items }} placement="bottomLeft">
-              <Avatar size={48} style={avatarStyle} icon={renderUserName()} />
+              <Avatar size={48} style={avatarStyle} icon={"s"} />
             </Dropdown>
           </Flex>
         </Header>
