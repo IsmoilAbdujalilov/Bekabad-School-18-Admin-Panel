@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { styles } from "services";
 import { get, truncate } from "lodash";
-import { useDelete, useGet } from "hooks";
+import { useDelete, useGet, usePost } from "hooks";
 import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CloudUploadOutlined,
+} from "@ant-design/icons";
 import {
   Spin,
   Form,
@@ -17,6 +21,8 @@ import {
   Tooltip,
   message,
   Popconfirm,
+  Upload,
+  Avatar,
 } from "antd";
 
 const News = () => {
@@ -25,8 +31,47 @@ const News = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [searchCurrentParams, setSearchCurrentParams] = useSearchParams();
+  const [inputImageFile, setInputImageFile] = useState<File | undefined>();
 
-  const onFinish = () => {};
+  type newsTypes = {
+    image: File;
+    text: string;
+    title: string;
+    views: string;
+    isPublic: boolean;
+    description: string;
+    _id: number | string;
+  };
+
+  const newsPost = usePost({
+    path: "/news",
+    queryKey: "news",
+    onSuccess: () => {
+      messageApi.open({
+        type: "success",
+        content: "Success Create Item",
+      });
+      setIsModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["news"] });
+    },
+    onError: () => {
+      messageApi.open({
+        type: "error",
+        content: "Error No Create Item",
+      });
+    },
+  });
+
+  const onFinish = (values: newsTypes) => {
+    const formData = new FormData();
+    formData.append("text", values.text);
+    formData.append("title", values.title);
+    formData.append("image", `${inputImageFile}`);
+    formData.append("isPublic", `${values.isPublic}`);
+    formData.append("description", values.description);
+
+    newsPost.mutate(formData);
+  };
 
   const onCancel = () => setIsModalOpen(false);
 
@@ -76,6 +121,13 @@ const News = () => {
   };
 
   const columns = [
+    {
+      key: "image",
+      title: "Avatar",
+      render: ({ image }: { image: string }) => {
+        return <Avatar src={image} />;
+      },
+    },
     {
       key: "title",
       title: "Title",
@@ -168,15 +220,102 @@ const News = () => {
         open={isModalOpen}
         onCancel={onCancel}
         title="Edit Category"
+        okButtonProps={{ style: { display: "none" } }}
+        cancelButtonProps={{ style: { display: "none" } }}
       >
-        <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item label="Category" name="category">
+        <Form
+          layout="vertical"
+          onFinish={(values: newsTypes) => onFinish(values)}
+        >
+          <Form.Item
+            name="title"
+            label="Title"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Please input your Title!",
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Please input your Description!",
+              },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item
+            name="text"
+            label="Text"
+            rules={[
+              {
+                type: "string",
+                required: true,
+                message: "Please input your Text!",
+              },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item
+            label="Public"
+            name="isPublic"
+            rules={[
+              {
+                required: true,
+                type: "boolean",
+                message: "Please switch your Active",
+              },
+            ]}
+          >
+            <Switch defaultValue={false} />
+          </Form.Item>
+          <Form.Item
+            name="image"
+            label="Upload"
+            rules={[
+              {
+                type: "object",
+                required: true,
+                message: "Please upload your image",
+              },
+            ]}
+          >
+            <Upload
+              multiple={false}
+              listType="picture-card"
+              action="http:localhost:5173"
+              beforeUpload={(file) => {
+                console.log(file);
+                setInputImageFile(file);
+                return false;
+              }}
+            >
+              <CloudUploadOutlined style={{ fontSize: "25px" }} />
+            </Upload>
+          </Form.Item>
+          <Flex align="center" justify="flex-end">
+            <Button type="primary" htmlType="submit">
+              Send your news
+            </Button>
+          </Flex>
         </Form>
       </Modal>
       <Flex align="center" justify="flex-end">
-        <Button className="login-form__flex" type="primary">
+        <Button
+          type="primary"
+          className="login-form__flex"
+          onClick={() => setIsModalOpen(true)}
+        >
           Create
         </Button>
       </Flex>
