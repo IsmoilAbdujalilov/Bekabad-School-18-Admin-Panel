@@ -14,6 +14,7 @@ const Library = lazy(() => import("pages/Library"));
 const Products = lazy(() => import("pages/Products"));
 const EditNews = lazy(() => import("pages/EditNews"));
 const Settings = lazy(() => import("pages/Settings"));
+const EditCourse = lazy(() => import("pages/EditCourse"));
 const Categories = lazy(() => import("pages/Categories"));
 
 const flexStyle: CSSProperties = { minHeight: "100vh" };
@@ -44,6 +45,7 @@ const routes = createBrowserRouter([
         element: <Course />,
         path: "/pages/course",
       },
+
       {
         element: <Event />,
         path: "/pages/event",
@@ -74,6 +76,10 @@ const routes = createBrowserRouter([
   {
     element: <EditNews />,
     path: "/pages/news/:id",
+  },
+  {
+    element: <EditCourse />,
+    path: "/pages/course/:id",
   },
 ]);
 

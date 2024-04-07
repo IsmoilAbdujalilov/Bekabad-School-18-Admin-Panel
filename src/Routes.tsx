@@ -21,7 +21,7 @@ const Routes = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location?.pathname?.split("/");
-  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState<boolean>(true);
 
   useEffect(() => {
     if (!storage.get("token")) {
@@ -153,10 +153,18 @@ const Routes = () => {
   return (
     <Layout>
       <Sider
-        collapsible
-        trigger={null}
+        lang="uz"
+        onCollapse={() =>
+          setCollapsed((prevCollapsedValue) => !prevCollapsedValue)
+        }
+        onBreakpoint={(broken) => {
+          console.log(broken);
+        }}
+        breakpoint="lg"
+        collapsedWidth={0}
         style={siderStyle}
         collapsed={collapsed}
+        collapsible={true}
       >
         <div className="demo-logo-vertical" />
         <Menu
@@ -174,7 +182,9 @@ const Routes = () => {
             <Button
               type="text"
               style={buttonStyle}
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() =>
+                setCollapsed((prevCollapsedValue) => !prevCollapsedValue)
+              }
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             />
             <Dropdown menu={{ items }} placement="bottomLeft">

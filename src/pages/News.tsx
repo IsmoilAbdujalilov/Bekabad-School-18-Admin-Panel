@@ -260,7 +260,7 @@ const News = () => {
         onOk={onOk}
         open={isModalOpen}
         onCancel={onCancel}
-        title="Edit Category"
+        title="Create category"
         okButtonProps={{ style: { display: "none" } }}
         cancelButtonProps={{ style: { display: "none" } }}
       >
