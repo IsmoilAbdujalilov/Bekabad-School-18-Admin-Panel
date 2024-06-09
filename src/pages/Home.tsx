@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Line } from "@ant-design/plots/es/components";
-import { Flex, Row } from "antd";
+// import { Flex, Row } from "antd";
 
 const Home = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading] = useState<boolean>(false);
 
   const data = [
     { year: "1991", value: 3 },

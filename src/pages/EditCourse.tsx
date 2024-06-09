@@ -2,7 +2,7 @@ import { get } from "lodash";
 import { api } from "services";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGet, usePut, useUploadImage } from "hooks";
+import { usePut, useUploadImage } from "hooks";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Spin, Switch, Upload, message } from "antd";
 

@@ -101,33 +101,31 @@ const Categories = () => {
   ];
 
   return (
-    <>
-      <Spin spinning={false}>
-        <Modal
-          onOk={onOk}
-          open={isModalOpen}
-          onCancel={onCancel}
-          title="Edit Category"
+    <Spin spinning={false}>
+      <Modal
+        onOk={onOk}
+        open={isModalOpen}
+        onCancel={onCancel}
+        title="Edit Category"
+      >
+        <Form
+          fields={[
+            {
+              value: "Fruit",
+              name: ["category"],
+            },
+          ]}
+          layout="vertical"
+          onFinish={onFinish}
         >
-          <Form
-            fields={[
-              {
-                value: "Fruit",
-                name: ["category"],
-              },
-            ]}
-            layout="vertical"
-            onFinish={onFinish}
-          >
-            <Form.Item label="Category" name="category">
-              <Input />
-            </Form.Item>
-          </Form>
-        </Modal>
+          <Form.Item label="Category" name="category">
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
 
-        <Table scroll={{ x: 1050 }} columns={columns} dataSource={data} />
-      </Spin>
-    </>
+      <Table scroll={{ x: 1050 }} columns={columns} dataSource={data} />
+    </Spin>
   );
 };
 
